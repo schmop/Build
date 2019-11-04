@@ -121,7 +121,9 @@ export default class Build {
 	}
 
 	render() {
-		this.ctx.clearRect(0, 0, this.width, this.height);
+		//this.ctx.clearRect(0, 0, this.width, this.height);
+		this.ctx.fillStyle = "white";
+		this.ctx.fillRect(0, 0, this.width, this.height);
 
 		this.renderables.forEach(renderable => {
 		  renderable.obj.render(this.ctx);

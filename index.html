@@ -1,13 +1,13 @@
 <html>
 <head>
   <title>Build</title>
-  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
   <script type="module">
 		import Build from './Build.js';
 
 		window.onload = () => {
       window.slider = document.getElementById("thresh");
-      
+
       window.game = new Build("game");
       window.game.init();
       window.game.startGame();
