@@ -22,6 +22,7 @@ export default class Map {
 
   destroy() {
     this.marching.destroy();
+    this.brush.destroy();
   }
 
   fillMap() {

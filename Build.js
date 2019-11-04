@@ -89,6 +89,7 @@ export default class Build {
 				this.clear();
 			}
 			else if (event.key === 'Backspace') {
+				this.map.marching.ramp.spawnBall();
 			}
 		});
 	}

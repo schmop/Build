@@ -1,6 +1,7 @@
 import Utils from './Utils.js';
 import Grid from './Grid.js';
 import Map from './Map.js';
+import Ramp from './Ramp.js';
 import Color from './Color.js';
 import vec2 from './vec2.js';
 
@@ -41,6 +42,8 @@ export default class MarchingSquares {
   constructor(grid, threshold) {
     this.grid = grid;
     this.threshold = threshold || 0.5;
+    this.lines = [];
+    this.ramp = new Ramp(this.lines);
     this.gridToLines();
 
     window.game.addRenderable(this);
@@ -53,6 +56,7 @@ export default class MarchingSquares {
 
   destroy() {
     window.game.removeRenderable(this);
+    this.ramp.destroy();
   }
 
   gridToLines() {
@@ -75,6 +79,7 @@ export default class MarchingSquares {
       }
       y++;
     }
+    this.ramp.lines = this.lines;
   }
 
   render(ctx) {
