@@ -11,6 +11,7 @@ export default class Brush {
     this.marching = marching;
     this.size = window.brush.value;
     this.isAdding = window.brushToggle.checked;
+    this.active = !window.spawnBalls.checked;
 
     this.registerListeners();
 
@@ -32,6 +33,10 @@ export default class Brush {
 
     window.brushToggle.addEventListener("change", (event) => {
       this.isAdding = window.brushToggle.checked;
+    });
+
+    window.spawnBalls.addEventListener("change", (event) => {
+      this.active = !window.spawnBalls.checked;
     });
   }
 

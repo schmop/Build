@@ -22,6 +22,9 @@ export default class Ramp {
 
   update() {
     this.checkCollisionOnBalls();
+    if (!this.game.map.brush.active && this.game.mouse.down) {
+      this.spawnBall();
+    }
   }
 
   spawnBall() {
