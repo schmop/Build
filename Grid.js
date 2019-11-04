@@ -14,6 +14,14 @@ export default class Grid {
     })
   }
 
+  forEach(callback) {
+    Object.keys(this.grid).forEach(key => callback(this.grid[key], key, this));
+  }
+
+  indexToPos(index) {
+    return new vec2(index % this.cols, Math.floor(index / this.cols));
+  }
+
   get(column, row) {
     if (!(column instanceof vec2)) {
       column = new vec2(column, row);

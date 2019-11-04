@@ -1,6 +1,7 @@
 import Utils from './Utils.js';
 import Grid from './Grid.js';
 import Color from './Color.js';
+import Brush from './Brush.js';
 import vec2 from './vec2.js';
 import MarchingSquares from './MarchingSquares.js';
 
@@ -16,6 +17,7 @@ export default class Map {
     this.grid = new Grid(this.columns);
     this.fillMap();
     this.marching = new MarchingSquares(this.grid, window.slider.value);
+    this.brush = new Brush(this.marching);
   }
 
   destroy() {
