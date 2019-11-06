@@ -41,7 +41,7 @@ export default class Brush {
   }
 
   update() {
-    if (window.game.mouse.down) {
+    if (window.game.mouse.down && this.active) {
       let somethingChanged = false;
       let gridPos = window.game.mouse.pos.scale(1 / Map.BLOCK_SIZE);
       let scaledRadius = this.size / Map.BLOCK_SIZE;
@@ -58,6 +58,9 @@ export default class Brush {
   }
 
   render(ctx) {
+    if (!this.active) {
+      return;
+    }
     ctx.beginPath();
     ctx.fillStyle = this.fillColor.toString();
     ctx.arc(window.game.mouse.pos.x, window.game.mouse.pos.y, this.size, 0, 2 * Math.PI);

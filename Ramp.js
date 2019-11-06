@@ -53,8 +53,8 @@ export default class Ramp {
           } else if(closest === point) {
             normal = np.sub(point).normalize();
           } else {
-            let line = point.sub(lastPoint).normalize();
-            normal = new vec2(line.y, -line.x);
+            let dir = point.sub(lastPoint).normalize();
+            normal = new vec2(dir.y, -dir.x);
           }
           const force = Math.abs(ball.vel.dot(normal));
           ball.vel = ball.vel.sub(normal.scale(ball.vel.dot(normal) * 2)).scale(Ramp.FRICTION);

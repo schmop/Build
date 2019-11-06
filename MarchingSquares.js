@@ -5,14 +5,25 @@ import Ramp from './Ramp.js';
 import Color from './Color.js';
 import vec2 from './vec2.js';
 
-class Line {
-  get from() { return new vec2(this.fromx, this.fromy); }
-  get to() { return new vec2(this.tox, this.toy); }
-  constructor(fromx, fromy, tox, toy) {
-    this.fromx = fromx;
-    this.fromy = fromy;
-    this.tox = tox;
-    this.toy = toy;
+class Tile {
+  get outlines() {
+    let lines = [];
+    let oldVertex = null;
+    this.vertices.forEach(vertex => {
+      if (oldVertex != null) {
+        lines.push({from: oldVertex, to: vertex});
+      }
+      oldVertex = vertex;
+    });
+    lines.push({from: oldVertex, to: this.vertices[0]});
+    return lines;
+  }
+
+  constructor(coordinates) {
+    this.vertices = [];
+    for (let i = 0; i < coordinates.length; i += 2) {
+      this.vertices.push(new vec2(coordinates[i], coordinates[i + 1]));
+    }
   }
 }
 
@@ -21,29 +32,29 @@ export default class MarchingSquares {
   static get CASES() {
     return [
       [],
-      [new Line(0, 0.5, 0.5, 1)],
-      [new Line(0.5, 1, 1, 0.5)],
-      [new Line(0, 0.5, 1, 0.5)],
-      [new Line(0.5, 0, 1, 0.5)],
-      [new Line(0, 0.5, 0.5, 0), new Line(0.5, 1, 1, 0.5)],
-      [new Line(0.5, 0, 0.5, 1)],
-      [new Line(0, 0.5, 0.5, 0)],
-      [new Line(0, 0.5, 0.5, 0)],
-      [new Line(0.5, 0, 0.5, 1)],
-      [new Line(0, 0.5, 0.5, 1), new Line(0.5, 0, 1, 0.5)],
-      [new Line(0.5, 0, 1, 0.5)],
-      [new Line(0, 0.5, 1, 0.5)],
-      [new Line(0.5, 1, 1, 0.5)],
-      [new Line(0, 0.5, 0.5, 1)],
-      []
+      [0, 0.5, 0.5, 1, 0, 1],
+      [0.5, 1, 1, 0.5, 1, 1],
+      [0, 0.5, 1, 0.5, 1, 1, 0, 1],
+      [0.5, 0, 1, 0.5, 1, 0],
+      [0, 0.5, 0.5, 0, 1, 0, 1, 0.5, 0.5, 1, 0, 1],
+      [0.5, 0, 1, 0, 1, 1, 0.5, 1],
+      [0, 0.5, 0.5, 0, 1, 0, 1, 1, 0, 1],
+      [0, 0.5, 0.5, 0, 0, 0],
+      [0.5, 0, 0.5, 1, 0, 1, 0, 0],
+      [0, 0.5, 0.5, 1, 1, 1, 1, 0.5, 0.5, 0, 0, 0],
+      [0.5, 0, 1, 0.5, 1, 1, 0, 1, 0, 0],
+      [0, 0.5, 1, 0.5, 1, 0, 0, 0],
+      [0.5, 1, 1, 0.5, 1, 0, 0, 0, 0, 1],
+      [0, 0.5, 0.5, 1, 1, 1, 1, 0, 0, 0],
+      [0, 0, 1, 0, 1, 1, 0, 1]
     ];
   }
 
   constructor(grid, threshold) {
     this.grid = grid;
     this.threshold = threshold || 0.5;
-    this.lines = [];
-    this.ramp = new Ramp(this.lines);
+    this.tiles = [];
+    this.ramp = new Ramp([]);
     this.gridToLines();
 
     window.game.addRenderable(this);
@@ -60,7 +71,8 @@ export default class MarchingSquares {
   }
 
   gridToLines() {
-    this.lines = [];
+    let lines = [];
+    this.tiles = [];
     let cases = MarchingSquares.CASES;
     let y = 0;
     while (this.grid.get(0,y) != null && this.grid.get(0,y+1) != null) {
@@ -70,25 +82,37 @@ export default class MarchingSquares {
                 |  (this.grid.get(x + 1, y + 1) > this.threshold) << 1
                 |  (this.grid.get(x    , y + 1) > this.threshold)
         ;
-        let lines = cases[lineCase].map(line => {
-          let from = line.from.add(x,y).scale(Map.BLOCK_SIZE, Map.BLOCK_SIZE);
-          let to = line.to.add(x,y).scale(Map.BLOCK_SIZE, Map.BLOCK_SIZE);
-          return new Line(from.x, from.y, to.x, to.y);
-        })
-        this.lines.push(...lines);
+        if (lineCase === 0) {
+          continue;
+        }
+        let tile = new Tile(cases[lineCase]);
+        tile.vertices = tile.vertices.map(vertex => {
+          return vertex.add(x,y).scale(Map.BLOCK_SIZE, Map.BLOCK_SIZE);
+        });
+        this.tiles.push(tile);
+        lines.push(...(tile.outlines));
       }
       y++;
     }
-    this.ramp.lines = this.lines;
+    this.ramp.lines = lines;
   }
 
   render(ctx) {
+    if (this.tiles.length === 0) {
+      return;
+    }
+    ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.strokeStyle = "black";
-    this.lines.forEach(line => {
-      ctx.moveTo(line.fromx, line.fromy);
-      ctx.lineTo(line.tox, line.toy);
+    this.tiles.forEach(tile => {
+
+      ctx.moveTo(tile.vertices[0].x, tile.vertices[0].y);
+      for (let i = 1; i < tile.vertices.length; i++) {
+        ctx.lineTo(tile.vertices[i].x, tile.vertices[i].y);
+      }
+
+      //ctx.lineTo(tile.vertices[0].x, tile.vertices[0].y);
     });
-    ctx.stroke();
+    ctx.closePath();
+    ctx.fill();
   }
 }

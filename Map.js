@@ -7,7 +7,7 @@ import MarchingSquares from './MarchingSquares.js';
 
 export default class Map {
 
-  static get BLOCK_SIZE() { return 32; }
+  static get BLOCK_SIZE() { return 16; }
   //static get MS_TRESH() { return 0.5; }
   static get MS_MAX() { return 1; }
   get columns() { return Math.floor(window.game.width / Map.BLOCK_SIZE); }
