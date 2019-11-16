@@ -26,7 +26,7 @@ export default class Ball {
 	get game() { return window.game; }
 	get width() { return this.game.width; }
 	get height() { return this.game.height; }
-	get otherBalls() { return this.game.map.marching.ramp.balls; }
+	get quadTree() { return this.game.map.marching.ramp.balls; }
 	get hovered() { return this.pos.distance(this.game.mouse.pos) <= this.size; }
 	get clicked() { return this.hovered && this.game.mouse.down; }
 
@@ -47,8 +47,10 @@ export default class Ball {
 
 	checkCollision() {
 		let npos = this.pos.add(this.vel);
+		this.quadTree.updateObject(this);
+		let nearBalls = this.quadTree.getObjectsNearby(this);
 
-		this.otherBalls.forEach(ball => {
+		nearBalls.forEach(ball => {
 			if (ball === this) {
 				return;
 			}
@@ -64,6 +66,8 @@ export default class Ball {
 				ball.clampPositionToBounds();
 				this.clampPositionToBounds();
 				npos = this.pos.clone();
+				this.quadTree.updateObject(ball);
+				this.quadTree.updateObject(this);
 			}
 		});
 
@@ -78,6 +82,8 @@ export default class Ball {
 	handleVelocity() {
 		this.checkCollision();
 		this.pos = this.pos.add(this.vel);
+		this.clampPositionToBounds();
+		this.quadTree.updateObject(this);
 	}
 
 	render(ctx) {

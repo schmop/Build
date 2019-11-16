@@ -5,17 +5,25 @@ import Ramp from './Ramp.js';
 import Color from './Color.js';
 import vec2 from './vec2.js';
 
+class Line {
+  get pos() { return this.from.add(this.to).scale(0.5); }
+  constructor(from, to) {
+    this.from = from;
+    this.to = to;
+  }
+}
+
 class Tile {
   get outlines() {
     let lines = [];
     let oldVertex = null;
     this.vertices.forEach(vertex => {
       if (oldVertex != null) {
-        lines.push({from: oldVertex, to: vertex});
+        lines.push(new Line(oldVertex, vertex));
       }
       oldVertex = vertex;
     });
-    lines.push({from: oldVertex, to: this.vertices[0]});
+    lines.push(new Line(oldVertex, this.vertices[0]));
     return lines;
   }
 
@@ -54,7 +62,7 @@ export default class MarchingSquares {
     this.grid = grid;
     this.threshold = threshold || 0.5;
     this.tiles = [];
-    this.ramp = new Ramp([]);
+    this.ramp = new Ramp();
     this.gridToLines();
 
     window.game.addRenderable(this);
@@ -94,7 +102,10 @@ export default class MarchingSquares {
       }
       y++;
     }
-    this.ramp.lines = lines;
+    this.ramp.resetQuadTree();
+    lines.forEach(line => {
+      this.ramp.lines.addObject(line);
+    });
   }
 
   render(ctx) {
